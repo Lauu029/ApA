@@ -19,7 +19,14 @@ def compute_cost(x, y, w, b):
         total_cost (float): The cost of using w,b as the parameters for linear regression
                to fit the data points in x and y
     """
-
+    m = len(x)
+    sumatorio = 0
+    
+    for element in x:
+        sumatorio += (y[i]-(w * x[i])) ** 2
+        
+    total_cost = 1 / m * (sumatorio)
+    
     return total_cost
 
 
