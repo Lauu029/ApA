@@ -85,4 +85,5 @@ def gradient_descent(x, y, w_in, b_in, cost_function, gradient_function, alpha, 
           primarily for graphing later
     """
     
+    
     return w, b, J_history
