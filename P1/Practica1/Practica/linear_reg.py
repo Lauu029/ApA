@@ -22,7 +22,7 @@ def compute_cost(x, y, w, b):
     m = len(x)
     sumatorio = 0
     
-    for element in x:
+    for i in range(1,m):
         sumatorio += (y[i]-(w * x[i])) ** 2
         
     total_cost = 1 / m * (sumatorio)
@@ -44,7 +44,19 @@ def compute_gradient(x, y, w, b):
       dj_dw (scalar): The gradient of the cost w.r.t. the parameters w
       dj_db (scalar): The gradient of the cost w.r.t. the parameter b     
      """
-
+    m = len(x)
+    
+    cost=compute_cost(x,y,w,b)
+    sumatorio_w, sumatorio_b, temp = 0
+    
+    for i in range (1,m):
+        temp =(y[i]-(w * x[i]))
+        sumatorio_w += temp * x[i]
+        sumatorio_b += temp
+        
+    dj_dw = w - 0.5 * sumatorio_w
+    dj_db = b - 0.5 * sumatorio_b
+    
     return dj_dw, dj_db
 
 
@@ -72,5 +84,5 @@ def gradient_descent(x, y, w_in, b_in, cost_function, gradient_function, alpha, 
       J_history : (ndarray): Shape (num_iters,) J at each iteration,
           primarily for graphing later
     """
-
+    
     return w, b, J_history
