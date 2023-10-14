@@ -18,14 +18,14 @@ def compute_cost(x, y, w, b):
     Returns
         total_cost (float): The cost of using w,b as the parameters for linear regression
                to fit the data points in x and y
-    """
+    """ 
     m = len(x)
-    sumatorio = 0
+    total_cost = 0.0
     
-    for i in range(1,m):
-        sumatorio += (y[i]-(w * x[i])) ** 2
+    for i in range(m):
+        total_cost += ((w * x[i] + b) - y[i]) ** 2
         
-    total_cost = 1 / m * (sumatorio)
+    total_cost = (1 / (2 * m)) * total_cost
     
     return total_cost
 
@@ -46,17 +46,16 @@ def compute_gradient(x, y, w, b):
      """
     m = len(x)
     
-    cost=compute_cost(x,y,w,b)
-    sumatorio_w, sumatorio_b, temp = 0
+    dj_dw = 0.0
+    dj_db = 0.0
     
-    for i in range (1,m):
-        temp =(y[i]-(w * x[i]))
-        sumatorio_w += temp * x[i]
-        sumatorio_b += temp
-        
-    dj_dw = w - 0.5 * sumatorio_w
-    dj_db = b - 0.5 * sumatorio_b
+    for i in range(m):
+        dj_dw += ((w * x[i] + b) - y[i]) * x[i]
+        dj_db += ((w * x[i] + b) - y[i])
     
+    dj_dw = dj_dw * 1 / m
+    dj_db = dj_db * 1 / m
+
     return dj_dw, dj_db
 
 
@@ -85,5 +84,27 @@ def gradient_descent(x, y, w_in, b_in, cost_function, gradient_function, alpha, 
           primarily for graphing later
     """
     
+    w = w_in
+    b = b_in  
+    
+    m = len(x)  
+    
+    J_history = np.zeros(num_iters) 
+
+    for i in range(num_iters):
+       
+        dj_dw, dj_db = gradient_function(x, y, w, b)
+      
+        w -= alpha * dj_dw
+        b -= alpha * dj_db
+        
+        J_history[i] = cost_function(x, y, w, b)
     
     return w, b, J_history
+
+
+
+
+
+
+    
