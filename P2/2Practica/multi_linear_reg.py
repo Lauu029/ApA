@@ -13,10 +13,12 @@ def zscore_normalize_features(X):
     1mu (ndarray (n,)) : mean of each feature
     1sigma (ndarray (n,)) : standard deviation of each feature
     """
-    mu = np.mean(X)
-    sigma = np.std(X)
-    X_Norm = (X-mu)/sigma
-    return (X_Norm, mu, sigma)
+    mu = X.mean(axis=0)
+    sigma = X.std(axis=0)
+
+    X_norm = (X-mu)/sigma
+    
+    return (X_norm, mu, sigma)
 
 def compute_cost(X, y, w, b):
     """
@@ -49,7 +51,6 @@ def compute_cost(X, y, w, b):
         
     total_cost = (1 / (2 * m)) * total_cost
     
-    print(total_cost)
     return total_cost
 
 
@@ -95,20 +96,29 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
     J_history : (ndarray): Shape (num_iters,) J at each iteration,
     primarily for graphing later
     """
-    m, n = X.shape
+    # Inicializar los parámetros w y b con los valores dados
     w = w_in
     b = b_in
-    J_history =np.zeros(num_iters)
-
+    
+    # Crear un arreglo vacío para almacenar el historial de costo
+    J_history = np.zeros(num_iters)
+    
+    # Obtener el número de ejemplos m y el número de variables n de la matriz X
+    m, n = X.shape
+    
+    # Repetir el proceso num_iters veces
     for i in range(num_iters):
-        # Calcular el costo y el gradiente utilizando las funciones proporcionadas
+        
+        # Calcular el costo y el gradiente usando las funciones dadas
         cost = cost_function(X, y, w, b)
         dj_db, dj_dw = gradient_function(X, y, w, b)
-
-        # Actualizar los parámetros w y b
-        w -= alpha * dj_dw
-        b -= alpha * dj_db
-
-        J_history[i]=cost
+        
+        # Actualizar los parámetros w y b usando la regla de actualización
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
+        
+        # Guardar el costo en el historial de costo
+        J_history[i] = cost
+      
 
     return w, b, J_history
