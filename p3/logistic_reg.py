@@ -33,7 +33,15 @@ def compute_cost(X, y, w, b, lambda_=None):
     Returns:
       total_cost: (scalar)         cost
     """
-     
+    m,n = X.shape
+    g = sigmoid(w * X + b)   
+    
+    total_cost=0
+    for i in range (m):
+        loss = (-y[i] * np.log(g)) - (1-y[i])*np.log(1-g)
+        total_cost += loss
+    total_cost = 1/m * total_cost
+    
     return total_cost
 
 
