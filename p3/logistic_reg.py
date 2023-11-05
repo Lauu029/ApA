@@ -58,7 +58,12 @@ def compute_gradient(X, y, w, b, lambda_=None):
       dj_db: (scalar)                The gradient of the cost w.r.t. the parameter b.
       dj_dw: (array_like Shape (n,1)) The gradient of the cost w.r.t. the parameters w.
     """
-
+    m,n = X.shape
+    dj_dw= np.empty(n)
+    
+    dj_dw= 1/m * np.sum(sigmoid(X @ w + b)-y) * X
+    
+    dj_db = 1/m * np.sum(sigmoid(X @ w + b)-y)
     return dj_db, dj_dw
 
 
