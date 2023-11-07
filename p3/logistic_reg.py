@@ -59,9 +59,7 @@ def compute_gradient(X, y, w, b, lambda_=None):
       dj_dw: (array_like Shape (n,1)) The gradient of the cost w.r.t. the parameters w.
     """
     m,n = X.shape
-    dj_dw= np.empty(n)
-    
-    dj_dw= 1/m * np.sum(sigmoid(X @ w + b)-y) * X
+    dj_dw = 1/m *( sigmoid(X @ w + b)-y) @ X
     
     dj_db = 1/m * np.sum(sigmoid(X @ w + b)-y)
     return dj_db, dj_dw
@@ -131,7 +129,32 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
       J_history : (ndarray): Shape (num_iters,) J at each iteration,
           primarily for graphing later
     """
+    # Inicializar los parámetros w y b con los valores dados
+    w = w_in
+    b = b_in
+    
+    # Crear un arreglo vacío para almacenar el historial de costo
+    J_history = np.zeros(num_iters)
+    
+    # Obtener el número de ejemplos m y el número de variables n de la matriz X
+    m, n = X.shape
+    
+    # Repetir el proceso num_iters veces
+    for i in range(num_iters):
+        
+        # Calcular el costo y el gradiente usando las funciones dadas
+        cost = cost_function(X, y, w, b)
+        dj_db, dj_dw = gradient_function(X, y, w, b)
+        
+        # Actualizar los parámetros w y b usando la regla de actualización
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
+        
+        # Guardar el costo en el historial de costo
+        J_history[i] = cost
+      
 
+    return w, b, J_history
     return w, b, J_history
 
 
