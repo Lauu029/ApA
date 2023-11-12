@@ -63,8 +63,13 @@ def load_data():
     z = data[:,2]
     return X, y, z
 
-def load_data_multi():
+def load_data_multi1():
     data = np.loadtxt("data/ex2data1.txt", delimiter=',')
+    X = data[:,:-1]
+    y = data[:, -1].astype(int)  # Convierte la última columna a enteros
+    return X, y
+def load_data_multi2():
+    data = np.loadtxt("data/ex2data2.txt", delimiter=',')
     X = data[:,:-1]
     y = data[:, -1].astype(int)  # Convierte la última columna a enteros
     return X, y

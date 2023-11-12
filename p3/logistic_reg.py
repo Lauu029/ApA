@@ -80,9 +80,15 @@ def compute_cost_reg(X, y, w, b, lambda_=1):
     Returns:
       total_cost: (scalar)         cost 
     """
+    cost = 0
+    w_total = np.sum((w**2))
 
+    m = len(X)
+
+    cost = np.sum(-y * np.log(sigmoid(X @ w + b)) - (1-y) * np.log(1 - sigmoid(X @ w + b)))
+
+    total_cost = (cost/m) + ((lambda_*w_total)/(2*m))
     return total_cost
-
 
 def compute_gradient_reg(X, y, w, b, lambda_=1):
     """
@@ -99,7 +105,16 @@ def compute_gradient_reg(X, y, w, b, lambda_=1):
       dj_dw: (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters w. 
 
     """
+    dj_db = 0
+    dj_dw = np.zeros(len(X[0]))
+    m = len(X) 
 
+    dj_db = np.sum(sigmoid(X @ w + b) - y)
+    dj_dw = (sigmoid(X @ w + b) - y) @ X
+    
+    dj_db= dj_db/m
+    dj_dw= (dj_dw / m) + (np.dot(np.divide(lambda_, m), w))
+    
     return dj_db, dj_dw
 
 
@@ -174,5 +189,11 @@ def predict(X, w, b):
     p: (ndarray (m,1))
         The predictions for X using a threshold at 0.5
     """
+    m=len(X)
+    p = np.zeros(m)
+
+    for i in range(m) :
+        if(sigmoid(np.dot(w, X[i]) + b) > 0.5) :
+            p[i] = 1.0
 
     return p
