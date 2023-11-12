@@ -54,7 +54,7 @@ def plot_decision_boundary(w, b, X, y):
 
         # Plot z = 0
         plt.contour(u, v, z, levels=[0.5], colors="g")
-        import numpy as np
+        
 
 def load_data():
     data = np.loadtxt("data/ex2data1.txt", delimiter=',')

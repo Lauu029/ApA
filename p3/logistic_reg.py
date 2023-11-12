@@ -155,7 +155,6 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
       
 
     return w, b, J_history
-    return w, b, J_history
 
 
 #########################################################################
