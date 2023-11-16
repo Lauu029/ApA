@@ -129,32 +129,14 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
       J_history : (ndarray): Shape (num_iters,) J at each iteration,
           primarily for graphing later
     """
-    # Inicializar los parámetros w y b con los valores dados
-    w = w_in
+    w = copy.deepcopy(w_in)
     b = b_in
-    
-    # Crear un arreglo vacío para almacenar el historial de costo
-    J_history = np.zeros(num_iters)
-    
-    # Obtener el número de ejemplos m y el número de variables n de la matriz X
-    m, n = X.shape
-    
-    # Repetir el proceso num_iters veces
+    J_history =[]
     for i in range(num_iters):
-        
-        # Calcular el costo y el gradiente usando las funciones dadas
-        cost = cost_function(X, y, w, b)
-        dj_db, dj_dw = gradient_function(X, y, w, b)
-        
-        # Actualizar los parámetros w y b usando la regla de actualización
-        w = w - alpha * dj_dw
-        b = b - alpha * dj_db
-        
-        # Guardar el costo en el historial de costo
-        J_history[i] = cost
-      
-
-    return w, b, J_history
+        temp_w, temp_b = gradient_function(X,y,w, b)
+        w -= alpha * temp_w
+        b -= alpha * temp_b
+        J_history += cost_function(X,y,w,b)
     return w, b, J_history
 
 
