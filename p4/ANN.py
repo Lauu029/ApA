@@ -29,22 +29,12 @@ def predict(theta1, theta2, X):
         Predictions vector containing the predicted label for each example.
         It has a length equal to the number of examples.
     """
-    # Transponer para que cada columna sea una muestra
-    a1 = X.T
-    
-     # Añadir sesgo a la primera capa
-    a1 = np.vstack([np.ones((1, a1.shape[1])), a1]) 
-
-    z2 = np.dot(theta1, a1)
+    a1= np.array(X)
+    #a1 = np.hstack([np.ones((a1.shape[0], 1)), a1])
+    z2 = np.dot(a1, theta1.T)
     a2 = sigmoid(z2)
-
-    # Añadir sesgo a la segunda capa
-    a2 = np.vstack([np.ones((1, a2.shape[1])), a2])
-
-    z3 = np.dot(theta2, a2)
+    a2 = np.hstack([np.ones((a2.shape[0], 1)), a2])
+    z3 = np.dot(a2, theta2.T)
     a3 = sigmoid(z3)
-
-
-    p = (a3 >= 0.5).astype(int)
-
-    return a3.flatten()
+    p = np.argmax(a3, axis=1)
+    return p
