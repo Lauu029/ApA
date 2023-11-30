@@ -11,6 +11,46 @@ def Delta(thetaL,deltaNext,aL,funDer):
         for j in range(deltaNext.shape[0]):
             D[i] += thetaL[j,i]*deltaNext[j]*funDer(aL[i])
     return D
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+def FeedForward(theta1, theta2, X):
+    a1= np.array(X)
+    a1 = np.hstack([np.ones((a1.shape[0], 1)), a1])
+    z2 = np.dot(a1, theta1.T)
+    a2 = sigmoid(z2)
+    a2 = np.hstack([np.ones((a2.shape[0], 1)), a2])
+    z3 = np.dot(a2, theta2.T)
+    a3 = sigmoid(z3)
+    return a1, a2, a3
+
+def predict(theta1, theta2, X):
+    """
+    Predict the label of an input given a trained neural network.
+
+    Parameters
+    ----------
+    theta1 : array_like
+        Weights for the first layer in the neural network.
+        It has shape (2nd hidden layer size x input size)
+
+    theta2: array_like
+        Weights for the second layer in the neural network. 
+        It has shape (output layer size x 2nd hidden layer size)
+
+    X : array_like
+        The image inputs having shape (number of examples x image dimensions).
+
+    Return 
+    ------
+    p : array_like
+        Predictions vector containing the predicted label for each example.
+        It has a length equal to the number of examples.
+    """
+    a1,a2,a3=FeedForward(theta1,theta2,X)
+    p = np.argmax(a3, axis=1)
+    return p
+
 def cost(theta1, theta2, X, y, lambda_):
     """
     Compute cost for 2-layer neural network. 
@@ -41,8 +81,13 @@ def cost(theta1, theta2, X, y, lambda_):
         The computed value for the cost function. 
 
     """
+    a1,a2,a3 = FeedForward(theta1, theta2, X)
+    m = len(X)
+    term1 = np.sum(y * np.log(a3))
+    term2 = np.sum((1 - y) * np.log(1 - a3))
+    regularizacion = (lambda_ / (2 * m)) * (np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2))
 
-
+    J = (-1 / m) * (term1 + term2) + regularizacion
     return J
 
 def Gradientes(gradientTetha1,gradientTetha2,delta2,delta3,a1,a2):
