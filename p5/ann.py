@@ -50,8 +50,15 @@ def predict(theta1, theta2, X):
     a1,a2,a3=FeedForward(theta1,theta2,X)
     p = np.argmax(a3, axis=1)
     return p
+def reg_cost(theta1, theta2, X, y, lambda_):
+    m = len(X)
+    c = cost(theta1,theta2,X,y,lambda_)
+    regularizacion = (lambda_ / (2 * m)) * (np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2))
+    
+    J = c + regularizacion
+    return J
 
-def cost(theta1, theta2, X, y, lambda_):
+def cost(theta_list , X, y, lambda_):
     """
     Compute cost for 2-layer neural network. 
 
@@ -87,7 +94,7 @@ def cost(theta1, theta2, X, y, lambda_):
     term2 = np.sum((1 - y) * np.log(1 - a3))
     regularizacion = (lambda_ / (2 * m)) * (np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2))
 
-    J = (-1 / m) * (term1 + term2) + regularizacion
+    J = (-1 / m) * (term1 + term2)#+ regularizacion
     return J
 
 def Gradientes(gradientTetha1,gradientTetha2,delta2,delta3,a1,a2):
