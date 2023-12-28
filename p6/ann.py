@@ -1,10 +1,13 @@
 import numpy as np
 
+#No lo tienes generalizado a multiples capas y neuronas por capa, para la práctica 6 es necesario. Os recomiendo que le paseis al algoritmo un vector que indique el numero de capas ocultas y el número de neuronas por capa. Por ejemplo [ 10, 3, 4] podría indicar una capa de 10 neuronas, otra de 3 y otra de 4 (contando la entrada o no en función de como lo implementeis). Por lo demás está muy bien, enhorabuena
+
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 def sigmoid_der(z):
     return sigmoid(z) * (1 - sigmoid(z))
+
 
 #Propagación hacia delante de la red
 def FeedForward(theta1, theta2, X):
