@@ -1,30 +1,22 @@
 import numpy as np
 
-#No lo tienes generalizado a multiples capas y neuronas por capa, para la práctica 6 es necesario. Os recomiendo que le paseis al algoritmo un vector que indique el numero de capas ocultas y el número de neuronas por capa. Por ejemplo [ 10, 3, 4] podría indicar una capa de 10 neuronas, otra de 3 y otra de 4 (contando la entrada o no en función de como lo implementeis). Por lo demás está muy bien, enhorabuena
-
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 def sigmoid_der(z):
     return sigmoid(z) * (1 - sigmoid(z))
 
-
-#Propagación hacia delante de la red
-def FeedForward(theta1, theta2, X):
-    a1 = np.array(X)
-    a1 = np.hstack([np.ones((a1.shape[0], 1)), a1])
-    z2 = np.dot(a1, theta1.T)
-    a2 = sigmoid(z2)
-    a2 = np.hstack([np.ones((a2.shape[0], 1)), a2])
-    z3 = np.dot(a2, theta2.T)
-    a3 = sigmoid(z3)
-    return z2,a1, a2, a3
+#Predecir la etiqueta de una entrada dada una red neuronal entrenada.
+def predict(pred):    
+    p = np.argmax(pred, axis=1)
+    return p
 
 #Propagación hacia delante de la red para m capas con n neuronas cada capa
 def FeedForward_generalizado(thetas, nNeuronas_capa, X):
     m = len(nNeuronas_capa)
     z = []  # Lista para almacenar las entradas ponderadas
     a = []  # Lista para almacenar las activaciones
+    
     #Neuronas de la capa de entrada
     a1= np.array(X)
     a1 = np.hstack([np.ones((a1.shape[0], 1)), a1])
@@ -37,29 +29,15 @@ def FeedForward_generalizado(thetas, nNeuronas_capa, X):
         z.append(z2)
         a.append(a2)
         a1 = a2  #Actualizo la capa anterior        
-    print(len(thetas))
-    print(m)
-   #neuronas de las capas de salida 
+
+    #neuronas de las capas de salida 
     z3 = np.dot(a2, thetas[m-2].T)
     a3 = sigmoid(z3)
     
-    z.append(z3) #No estoy segura de esto
+    z.append(z3)
     a.append(a3)
-    return z, a3, a
-
-#Predecir la etiqueta de una entrada dada una red neuronal entrenada.
-def predict(pred):    
-    p = np.argmax(pred, axis=1)
-    return p
-
-#Cálculo del coste sumando la regularización L2
-def reg_cost(theta1, theta2, X, y, lambda_):
-    m = len(X)
-    c = cost(theta1,theta2,X,y)
-    thetas = np.concatenate((theta1[:,1:].flatten(), theta2[:,1:].flatten()))
-    
-    J = c + L2(thetas,X,y,lambda_)
-    return J
+    #devuelvo un vector con todas los resultados de las neuronas y otro con los resultados pasados por la activación sigmoide
+    return z,a
 
 #Cálculo del coste sumando la regularización L2 para cualquier numero de capas y neuronas
 def reg_cost_generalizado(thetas, nNeuronas_capa, X, y, lambda_):
@@ -75,22 +53,98 @@ def L2(theta, X, y, lambda_):
     L2=(lambda_/(2*m))*np.sum(np.sum(np.sum(theta**2)))
     return L2
 
-#Coste de la red de neuronas de dos capas sin regularización
-def cost(theta1,theta2 , X, y):
-    z2,a1,a2,a3 = FeedForward(theta1, theta2, X)
-    m = len(X)
-    term1 = np.sum(y * np.log(a3))
-    term2 = np.sum((1 - y) * np.log(1 - a3))
-
-    J = (-1 / m) * np.sum(term1 + term2)
-    return J
-
 #Coste de la red de neuronas de m numero de capas con n numero de neuronas sin regularización
 def cost_generalizado(thetas, nNeuronas_capa, X, y):
     z,a = FeedForward_generalizado(thetas, nNeuronas_capa, X)
     m = len(X)
     term1 = np.sum(y * np.log(a))
     term2 = np.sum((1 - y) * np.log(1 - a))
+    J = (-1 / m) * np.sum(term1 + term2)
+    return J
+
+def backprop_generalizado(thetas, nNeuronas_capa, X, y, lambda_):
+    m = len(X)
+    z, a= FeedForward_generalizado(thetas, nNeuronas_capa, X)     
+    
+    #Cálculo de errores en la capa de salida
+    deltas = [a[-1] - y]
+    
+    
+    #print("Rango: ",range(len(nNeuronas_capa) - 2, 0, -1))
+    for i in range(len(nNeuronas_capa) - 2, 0, -1):
+        sigmoid_calc= sigmoid_der(z[i-1])
+        print("Tamaño sigmoid: ",sigmoid_calc.shape)
+        delta = np.dot(deltas[0], thetas[i][:, 1:]) * sigmoid_der(z[i-1])
+        print(i," shape: ", delta.shape)
+        deltas.insert(0, delta)
+    print("longitud deltas: ",len(deltas))
+    # Cálculo de gradientes
+    gradients = [np.dot(d.T, a[i]) / m  for i, d in enumerate(deltas)]
+    print("dimgradients0: ",gradients[i].shape)
+    for g in gradients:
+        g = np.hstack([np.ones((g.shape[0], 1)), g])
+    print("dimgradientsA: ",gradients[0].shape)
+    # Regularización de gradientes
+    for i in range(len(gradients)):
+        temp = (lambda_ / m) * thetas[i][:, 1:]        
+        print(i," dim: ", temp.shape)
+        print("dimgradients2: ",gradients[i].shape)
+        gradients[i][:, 1:] += temp
+    
+    cost = reg_cost_generalizado(thetas, nNeuronas_capa, X, y, lambda_)
+    
+    return cost, gradients
+
+def gradientdescent_generalizado(nNeuronas_capa, X, y, lambda_, num_iters, alpha):
+    m = len(X)
+    epsilon = 0.12
+    thetas = [np.random.uniform(-epsilon, epsilon, size=(nNeuronas_capa[i + 1], nNeuronas_capa[i] + 1))
+              for i in range(len(nNeuronas_capa)-1)]#???
+    for iteracion in range(num_iters):
+        coste, gradientes = backprop_generalizado(thetas, nNeuronas_capa, X, y, lambda_)
+
+        # Actualizar thetas
+        for i in range(len(thetas)):
+            thetas[i] -= alpha * gradientes[i]
+
+        if iteracion % 100 == 0:
+            print(f"Iteración {iteracion}, Coste: {coste}")
+
+    return thetas
+
+
+
+
+
+
+#Calculos para solo una capa oculta (Practica 5)
+
+#Propagación hacia delante de la red para solo una capa intermedia
+def FeedForward(theta1, theta2, X):
+    a1 = np.array(X)
+    a1 = np.hstack([np.ones((a1.shape[0], 1)), a1])
+    z2 = np.dot(a1, theta1.T)
+    a2 = sigmoid(z2)
+    a2 = np.hstack([np.ones((a2.shape[0], 1)), a2])
+    z3 = np.dot(a2, theta2.T)
+    a3 = sigmoid(z3)
+    return z2,a1, a2, a3
+
+#Cálculo del coste sumando la regularización L2 para una sola capa oculta
+def reg_cost(theta1, theta2, X, y, lambda_):
+    m = len(X)
+    c = cost(theta1,theta2,X,y)
+    thetas = np.concatenate((theta1[:,1:].flatten(), theta2[:,1:].flatten()))
+    
+    J = c + L2(thetas,X,y,lambda_)
+    return J
+
+#Coste de la red de neuronas de dos capas sin regularización
+def cost(theta1,theta2 , X, y):
+    z2,a1,a2,a3 = FeedForward(theta1, theta2, X)
+    m = len(X)
+    term1 = np.sum(y * np.log(a3))
+    term2 = np.sum((1 - y) * np.log(1 - a3))
 
     J = (-1 / m) * np.sum(term1 + term2)
     return J
@@ -115,65 +169,3 @@ def backprop(theta1, theta2, X, y, lambda_):
     cost = reg_cost(theta1, theta2, X, y, lambda_)
     
     return cost, grad1, grad2
-
-def backprop_generalizado(thetas, nNeuronas_capa, X, y, lambda_):
-    m = len(X)
-    z, a3 , a= FeedForward_generalizado(thetas, nNeuronas_capa, X)     
-    
-    #Cálculo de errores en la capa de salida
-    deltas = [a3 - y]
-    #print("Rango: ",range(len(nNeuronas_capa) - 2, 0, -1))
-    for i in range(len(nNeuronas_capa) - 2, 0, -1):
-        sigmoid_calc= sigmoid_der(z[i-1])
-        print("Tamaño sigmoid: ",sigmoid_calc.shape)
-        delta = np.dot(deltas[0], thetas[i][:, 1:]) * sigmoid_der(z[i-1])
-        print(i," shape: ", delta.shape)
-        deltas.insert(0, delta)
-    print("longitud deltas: ",len(deltas))
-    # Cálculo de gradientes
-    gradients = [np.dot(d.T, a[i]) / m  for i, d in enumerate(deltas)]
-
-    # Regularización de gradientes
-    for i in range(len(gradients)):
-        temp = (lambda_ / m) * thetas[i][:, 1:]        
-        print(i," dim: ", temp.shape)
-        print("dimgradients: ",gradients[i].shape)
-        gradients[i][:, 1:] += temp
-    
-    cost = reg_cost_generalizado(thetas, nNeuronas_capa, X, y, lambda_)
-    
-    return cost, gradients
-
-
-def gradientdescent(theta1, theta2, X, y, lambda_, num_iters, alpha):
-
-    epsilon = 0.12
-
-    theta1 = np.random.uniform(-epsilon, epsilon, size=(theta1.shape[0], theta1.shape[1]))
-    theta2 = np.random.uniform(-epsilon, epsilon, size=(theta2.shape[0], theta2.shape[1]))
-
-    for i in range(num_iters):
-        J, grad1,grad2=backprop(theta1, theta2, X, y, lambda_)
-        
-        theta1=theta1-alpha * grad1
-        theta2=theta2-alpha * grad2
-
-    return theta1, theta2
-
-
-def gradientdescent_generalizado(nNeuronas_capa, X, y, lambda_, num_iters, alpha):
-    m = len(X)
-    epsilon = 0.12
-    thetas = [np.random.uniform(-epsilon, epsilon, size=(nNeuronas_capa[i + 1], nNeuronas_capa[i] + 1))
-              for i in range(len(nNeuronas_capa)-1)]#???
-    for iteracion in range(num_iters):
-        coste, gradientes = backprop_generalizado(thetas, nNeuronas_capa, X, y, lambda_)
-
-        # Actualizar thetas
-        for i in range(len(thetas)):
-            thetas[i] -= alpha * gradientes[i]
-
-        if iteracion % 100 == 0:
-            print(f"Iteración {iteracion}, Coste: {coste}")
-
-    return thetas
