@@ -8,14 +8,7 @@ def sigmoid_der(z):
 
 #Predecir la etiqueta de una entrada dada una red neuronal entrenada.
 def predict(pred):   
-  
-    # Obtener los índices de los valores máximos a lo largo del eje 1
-    max_indices = np.argmax(pred, axis=1)
-    # Crear un array de ceros con la misma forma que pred
-    p = np.zeros_like(pred)
-    
-    p[np.arange(len(max_indices)),max_indices]=1
-    
+    p = np.argmax(pred, axis=1)
     return p
 
 #Propagación hacia delante de la red para m capas con n neuronas cada capa
@@ -65,7 +58,7 @@ def cost_generalizado(thetas, nNeuronas_capa, X, y):
     z,a = FeedForward_generalizado(thetas, nNeuronas_capa, X)
     m = len(X)
     
-    y_sum = y.values
+    #y_sum = y.values
     term1 = np.sum(y * np.log(a[-1]))
     term2 = np.sum((1 - y) * np.log(1 - a[-1]))
     J = (-1 / m) * np.sum(term1 + term2)
