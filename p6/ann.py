@@ -7,8 +7,15 @@ def sigmoid_der(z):
     return sigmoid(z) * (1 - sigmoid(z))
 
 #Predecir la etiqueta de una entrada dada una red neuronal entrenada.
-def predict(pred):    
-    p = np.argmax(pred, axis=1)
+def predict(pred):   
+  
+    # Obtener los índices de los valores máximos a lo largo del eje 1
+    max_indices = np.argmax(pred, axis=1)
+    # Crear un array de ceros con la misma forma que pred
+    p = np.zeros_like(pred)
+    
+    p[np.arange(len(max_indices)),max_indices]=1
+    
     return p
 
 #Propagación hacia delante de la red para m capas con n neuronas cada capa
