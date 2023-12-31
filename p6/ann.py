@@ -20,7 +20,7 @@ def FeedForward_generalizado(thetas, nNeuronas_capa, X):
     #Neuronas de la capa de entrada
     a1= np.array(X)
     a1 = np.hstack([np.ones((a1.shape[0], 1)), a1])
-    
+    a.append(a1)
     #neuronas de las capas ocultas
     for i in range (m-2):
         z2 = np.dot(a1, thetas[i].T)
@@ -57,8 +57,10 @@ def L2(theta, X, y, lambda_):
 def cost_generalizado(thetas, nNeuronas_capa, X, y):
     z,a = FeedForward_generalizado(thetas, nNeuronas_capa, X)
     m = len(X)
-    term1 = np.sum(y * np.log(a))
-    term2 = np.sum((1 - y) * np.log(1 - a))
+    
+    y_sum = y.values
+    term1 = np.sum(y * np.log(a[-1]))
+    term2 = np.sum((1 - y) * np.log(1 - a[-1]))
     J = (-1 / m) * np.sum(term1 + term2)
     return J
 
@@ -73,22 +75,15 @@ def backprop_generalizado(thetas, nNeuronas_capa, X, y, lambda_):
     #print("Rango: ",range(len(nNeuronas_capa) - 2, 0, -1))
     for i in range(len(nNeuronas_capa) - 2, 0, -1):
         sigmoid_calc= sigmoid_der(z[i-1])
-        print("Tamaño sigmoid: ",sigmoid_calc.shape)
         delta = np.dot(deltas[0], thetas[i][:, 1:]) * sigmoid_der(z[i-1])
-        print(i," shape: ", delta.shape)
         deltas.insert(0, delta)
-    print("longitud deltas: ",len(deltas))
     # Cálculo de gradientes
     gradients = [np.dot(d.T, a[i]) / m  for i, d in enumerate(deltas)]
-    print("dimgradients0: ",gradients[i].shape)
     for g in gradients:
         g = np.hstack([np.ones((g.shape[0], 1)), g])
-    print("dimgradientsA: ",gradients[0].shape)
     # Regularización de gradientes
     for i in range(len(gradients)):
         temp = (lambda_ / m) * thetas[i][:, 1:]        
-        print(i," dim: ", temp.shape)
-        print("dimgradients2: ",gradients[i].shape)
         gradients[i][:, 1:] += temp
     
     cost = reg_cost_generalizado(thetas, nNeuronas_capa, X, y, lambda_)
@@ -106,9 +101,6 @@ def gradientdescent_generalizado(nNeuronas_capa, X, y, lambda_, num_iters, alpha
         # Actualizar thetas
         for i in range(len(thetas)):
             thetas[i] -= alpha * gradientes[i]
-
-        if iteracion % 100 == 0:
-            print(f"Iteración {iteracion}, Coste: {coste}")
 
     return thetas
 
