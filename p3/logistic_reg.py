@@ -80,9 +80,15 @@ def compute_cost_reg(X, y, w, b, lambda_=1):
     Returns:
       total_cost: (scalar)         cost 
     """
+    cost = 0
+    w_total = np.sum((w**2))
 
+    m = len(X)
+
+    cost = np.sum(-y * np.log(sigmoid(X @ w + b)) - (1-y) * np.log(1 - sigmoid(X @ w + b)))
+
+    total_cost = (cost/m) + ((lambda_*w_total)/(2*m))
     return total_cost
-
 
 def compute_gradient_reg(X, y, w, b, lambda_=1):
     """
@@ -99,7 +105,16 @@ def compute_gradient_reg(X, y, w, b, lambda_=1):
       dj_dw: (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters w. 
 
     """
+    dj_db = 0
+    dj_dw = np.zeros(len(X[0]))
+    m = len(X) 
 
+    dj_db = np.sum(sigmoid(X @ w + b) - y)
+    dj_dw = (sigmoid(X @ w + b) - y) @ X
+    
+    dj_db= dj_db/m
+    dj_dw= (dj_dw / m) + (np.dot(np.divide(lambda_, m), w))
+    
     return dj_db, dj_dw
 
 
@@ -129,14 +144,31 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
       J_history : (ndarray): Shape (num_iters,) J at each iteration,
           primarily for graphing later
     """
-    w = copy.deepcopy(w_in)
+    # Inicializar los parámetros w y b con los valores dados
+    w = w_in
     b = b_in
-    J_history =[]
+    
+    # Crear un arreglo vacío para almacenar el historial de costo
+    J_history = np.zeros(num_iters)
+    
+    # Obtener el número de ejemplos m y el número de variables n de la matriz X
+    m, n = X.shape
+    
+    # Repetir el proceso num_iters veces
     for i in range(num_iters):
-        temp_w, temp_b = gradient_function(X,y,w, b)
-        w -= alpha * temp_w
-        b -= alpha * temp_b
-        J_history += cost_function(X,y,w,b)
+        
+        # Calcular el costo y el gradiente usando las funciones dadas
+        cost = cost_function(X, y, w, b)
+        dj_db, dj_dw = gradient_function(X, y, w, b)
+        
+        # Actualizar los parámetros w y b usando la regla de actualización
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
+        
+        # Guardar el costo en el historial de costo
+        J_history[i] = cost
+      
+
     return w, b, J_history
 
 
@@ -157,5 +189,11 @@ def predict(X, w, b):
     p: (ndarray (m,1))
         The predictions for X using a threshold at 0.5
     """
+    m=len(X)
+    p = np.zeros(m)
+
+    for i in range(m) :
+        if(sigmoid(np.dot(w, X[i]) + b) > 0.5) :
+            p[i] = 1.0
 
     return p
