@@ -35,3 +35,21 @@ def ExportAllformatsMLPSKlearn(mlp,X,picklefileName,onixFileName,jsonFileName,cu
     customFormat = ExportONNX_JSON_TO_Custom(onnx_json,mlp)
     with open(customFileName, 'w') as f:
         f.write(customFormat)   
+        
+def export_to_custom_format(model, filename):
+    with open(filename, 'w') as f:
+        # Escribir el número de capas
+        f.write(f'num_layers:{len(model.coefs_)}\n')
+
+        for i, (coef, intercept) in enumerate(zip(model.coefs_, model.intercepts_)):
+            # Escribir los coeficientes
+            f.write(f'parameter:{i}\n')
+            f.write(f'dims:{list(coef.shape)}\n')
+            f.write('name:coefficient\n')
+            f.write(f'values:{coef.flatten().tolist()}\n')
+
+            # Escribir los intercepts
+            f.write(f'parameter:{i}\n')
+            f.write(f'dims:{[1, len(intercept)]}\n')
+            f.write('name:intercepts\n')
+            f.write(f'values:{intercept.tolist()}\n')
