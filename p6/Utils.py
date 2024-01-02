@@ -2,7 +2,7 @@ from skl2onnx import to_onnx
 from onnx2json import convert
 import pickle
 import json
-
+from keras.models import model_from_json
 
 def ExportONNX_JSON_TO_Custom(onnx_json,mlp):
     graphDic = onnx_json["graph"]
@@ -53,3 +53,19 @@ def export_to_custom_format(model, filename):
             f.write(f'dims:{[1, len(intercept)]}\n')
             f.write('name:intercepts\n')
             f.write(f'values:{intercept.tolist()}\n')
+            
+import json
+from sklearn import tree
+
+#para exportar el arbol de decisiones a json
+def export_decision_tree_to_json(dtc, filename):
+    data = {
+        'node_count': dtc.tree_.node_count,
+        'children_left': dtc.tree_.children_left.tolist(),
+        'children_right': dtc.tree_.children_right.tolist(),
+        'feature': dtc.tree_.feature.tolist(),
+        'threshold': dtc.tree_.threshold.tolist(),
+        'value': dtc.tree_.value.tolist(),
+    }
+    with open(filename, 'w') as file:
+        json.dump(data,file)

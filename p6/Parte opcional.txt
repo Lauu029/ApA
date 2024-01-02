@@ -1,0 +1,2 @@
+Para la parte opcional hemos utilizado decision tree, que se ha exportado a un json y analizado dentro de la clase DecissionTreeModel, para usar esto hay que arrastrar
+el archivo decisionTree.json al apartado Text, y seleccionar "DTM" en Model.
